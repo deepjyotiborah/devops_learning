@@ -1,23 +1,22 @@
 package com.example.demoservice.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-@ApiModel(description = "User entity representing a system user")
+@Schema(description = "User entity representing a system user")
 public class User {
 
-    @ApiModelProperty(value = "Unique identifier of the user", example = "1", accessMode = ApiModelProperty.AccessMode.READ_ONLY)
+    @Schema(description = "Unique identifier of the user", example = "1", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
-    @ApiModelProperty(value = "Name of the user", example = "John Doe", required = true)
+    @Schema(description = "Name of the user", example = "John Doe", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Name is required")
     @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
     private String name;
 
-    @ApiModelProperty(value = "Email address of the user", example = "john.doe@example.com", required = true)
+    @Schema(description = "Email address of the user", example = "john.doe@example.com", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
     private String email;

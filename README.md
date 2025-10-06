@@ -21,7 +21,7 @@ A production-ready Spring Boot application demonstrating RESTful API best practi
 - **Gradle 8.5**
 - **Spring Web** - RESTful API
 - **Spring Boot Actuator** - Health monitoring
-- **Springfox Swagger** - API documentation
+- **SpringDoc OpenAPI** - API documentation (with Swagger UI)
 - **Bean Validation** - Input validation
 - **JUnit 5** - Testing framework
 
@@ -87,7 +87,7 @@ The application will start on `http://localhost:8080`
 
 Once the application is running, you can access the interactive API documentation at:
 
-**🔗 http://localhost:8080/swagger-ui/**
+**🔗 http://localhost:8080/swagger-ui.html**
 
 The Swagger UI provides:
 - Complete API documentation
@@ -95,11 +95,11 @@ The Swagger UI provides:
 - Request/response examples
 - Schema definitions
 
-### Swagger API Docs
+### API Documentation (OpenAPI Specification)
 
-The Swagger v2 specification (JSON format) is available at:
+The OpenAPI 3.0 specification (JSON format) is available at:
 
-**🔗 http://localhost:8080/v2/api-docs**
+**🔗 http://localhost:8080/api-docs**
 
 ## API Endpoints
 
@@ -213,7 +213,7 @@ The Swagger v2 specification (JSON format) is available at:
 ### Using Swagger UI
 
 1. Start the application: `./gradlew bootRun`
-2. Open your browser and navigate to: `http://localhost:8080/swagger-ui/`
+2. Open your browser and navigate to: `http://localhost:8080/swagger-ui.html`
 3. Try out the API endpoints interactively!
 
 ### Using curl
@@ -228,8 +228,8 @@ curl http://localhost:8080/actuator/health
 # Application Info
 curl http://localhost:8080/actuator/info
 
-# Swagger API Docs
-curl http://localhost:8080/v2/api-docs
+# API Documentation (OpenAPI)
+curl http://localhost:8080/api-docs
 
 # Get all users
 curl http://localhost:8080/api/users
@@ -260,8 +260,8 @@ curl -X DELETE http://localhost:8080/api/users/1
 ## Additional Endpoints
 
 ### API Documentation
-- **Swagger UI**: `http://localhost:8080/swagger-ui/` - Interactive API documentation
-- **Swagger API Docs**: `http://localhost:8080/v2/api-docs` - Swagger v2 specification (JSON)
+- **Swagger UI**: `http://localhost:8080/swagger-ui.html` - Interactive API documentation
+- **API Docs**: `http://localhost:8080/api-docs` - OpenAPI 3.0 specification (JSON)
 
 ### Spring Boot Actuator
 - **Health**: `http://localhost:8080/actuator/health` - Comprehensive health status with system metrics

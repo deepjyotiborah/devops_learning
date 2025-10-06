@@ -1,9 +1,9 @@
 package com.example.demoservice.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,20 +19,20 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/health")
-@Api(tags = "Health Check", description = "Health monitoring endpoints with system information")
+@Tag(name = "Health Check", description = "Health monitoring endpoints with system information")
 public class HealthController {
 
     private static final double MEMORY_THRESHOLD = 0.90; // 90% memory usage threshold
     private static final double DISK_THRESHOLD = 0.95; // 95% disk usage threshold
 
-    @ApiOperation(
-            value = "Get application health status",
-            notes = "Returns comprehensive health status including memory, JVM, OS, CPU, and disk metrics. " +
+    @Operation(
+            summary = "Get application health status",
+            description = "Returns comprehensive health status including memory, JVM, OS, CPU, and disk metrics. " +
                     "Returns HTTP 200 when healthy and HTTP 503 when service is experiencing issues."
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Service is healthy"),
-            @ApiResponse(code = 503, message = "Service is unhealthy or experiencing issues")
+            @ApiResponse(responseCode = "200", description = "Service is healthy"),
+            @ApiResponse(responseCode = "503", description = "Service is unhealthy or experiencing issues")
     })
     @GetMapping
     public ResponseEntity<Map<String, Object>> getHealth() throws Exception {
