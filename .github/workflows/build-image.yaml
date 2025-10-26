@@ -27,10 +27,18 @@ jobs:
           pip install -r requirements.txt
           pip install pytest
       - name: Run tests
-        run: pytest -v --tb=short --junitxml=test-results-${{ env.PYTHON_VERSION }}.xml
+        run: pytest -v --tb=short --junitxml=test-results-${{ env.PYTHON_VERSION }}.xml --cov=app --cov-report=xml --cov-report=html --cov-report=term
       - name: upload test reports
         uses: actions/upload-artifact@v4  
         with:
           name: test-results-${{ env.PYTHON_VERSION }}
           path: test-results-${{ env.PYTHON_VERSION }}.xml
           retention-days: 30
+      - name: Upload coverge report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{env.PYTHON_VERSION}}
+          path: |
+            coverage.xml
+            htmlcov
+          retention-days: 30  
