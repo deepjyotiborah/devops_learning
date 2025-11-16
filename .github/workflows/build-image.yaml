@@ -111,7 +111,7 @@ jobs:
         with:
           version: 'latest'
       
-      - name: Configure kubectl(getting the base64 encoded secret, decode it and put in kubeconfig file)
+      - name: Configure kubectl
         run: |
           mkdir -p $HOME/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 --decode > $HOME/.kube/config
@@ -119,6 +119,7 @@ jobs:
       
       - name: Verify cluster connection
         run: |
+          kubectl config current-context
           kubectl cluster-info
           kubectl get nodes
       
