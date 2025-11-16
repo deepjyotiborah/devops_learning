@@ -94,3 +94,112 @@ jobs:
           sleep 10
           curl -f http://localhost:8000/health || exit 1
           docker stop test-container
+
+  # Job 3: Deploy to Kubernetes
+  deploy:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+      
+      - name: Configure kubectl(getting the base64 encoded secret, decode it and put in kubeconfig file)
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 --decode > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+      
+      - name: Verify cluster connection
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+      
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+      
+      - name: Wait for deployment
+        run: |
+          kubectl rollout status deployment/demoservice-deployment --timeout=5m
+      
+      - name: Verify deployment
+        run: |
+          echo "Checking deployment status..."
+          kubectl get deployments -l app=demo-service
+          kubectl get pods -l app=demo-service
+          kubectl get svc demo-service
+          
+          echo ""
+          echo "Checking pod health..."
+          kubectl wait --for=condition=ready pod -l app=demo-service --timeout=2m
+          
+          echo ""
+          echo "Deployment successful!"
+      
+      - name: Test health check endpoint
+        run: |
+          echo "Testing application health endpoint..."
+          
+          # Get pod name
+          POD_NAME=$(kubectl get pods -l app=demo-service -o jsonpath='{.items[0].metadata.name}')
+          echo "Testing pod: $POD_NAME"
+          
+          # Port forward in background
+          kubectl port-forward $POD_NAME 8080:8000 &
+          PF_PID=$!
+          
+          # Wait for port forward to establish
+          sleep 5
+          
+          # Test health endpoint
+          echo ""
+          echo "Calling health endpoint..."
+          HEALTH_RESPONSE=$(curl -s http://localhost:8080/health)
+          echo "Response: $HEALTH_RESPONSE"
+          
+          # Verify response contains "healthy"
+          if echo "$HEALTH_RESPONSE" | grep -q "healthy"; then
+            echo ""
+            echo "✅ Health check passed!"
+          else
+            echo ""
+            echo "❌ Health check failed!"
+            kill $PF_PID
+            exit 1
+          fi
+          
+          # Test root endpoint
+          echo ""
+          echo "Calling root endpoint..."
+          ROOT_RESPONSE=$(curl -s http://localhost:8080/)
+          echo "Response: $ROOT_RESPONSE"
+          
+          # Clean up port forward
+          kill $PF_PID
+          
+          echo ""
+          echo "✅ All endpoint tests passed!"
+      
+      - name: Get deployment info
+        if: always()
+        run: |
+          echo "=== Deployment Details ==="
+          kubectl describe deployment demoservice-deployment
+          echo ""
+          echo "=== Pod Details ==="
+          kubectl get pods -l app=demo-service -o wide
+          echo ""
+          echo "=== Service Details ==="
+          kubectl describe svc demo-service
+          echo ""
+          echo "=== Recent Pod Logs ==="
+          kubectl logs -l app=demo-service --tail=20
