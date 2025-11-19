@@ -1,0 +1,22 @@
+apiVersion: v1
+entries:
+  demo-service:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2025-11-19T08:33:33.661009+05:30"
+    description: A Helm chart for demo service
+    digest: 5f7ecb18ae50430475eafbb65a88aa866a715040fbe93879ae21640e3267a75b
+    icon: https://helm.sh/img/helm.svg
+    keywords:
+    - fastapi
+    - demo
+    - python
+    maintainers:
+    - email: demo@example.com
+      name: Demo Team
+    name: demo-service
+    type: application
+    urls:
+    - demo-service-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-11-19T08:33:33.660089+05:30"

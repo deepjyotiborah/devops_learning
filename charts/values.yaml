@@ -1,0 +1,5 @@
+image:
+  repository: deepborah/demoservice
+  tag: latest
+  pullPolicy: IfNotPresent
+appMessage: "Demo Service"
