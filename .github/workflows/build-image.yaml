@@ -111,12 +111,6 @@ jobs:
         with:
           version: 'latest'
       
-      - name: Verify cluster connection
-        run: |
-          kubectl config current-context
-          kubectl cluster-info
-          kubectl get nodes
-      
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f k8s/deployment.yaml
