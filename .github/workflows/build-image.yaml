@@ -23,7 +23,7 @@ jobs:
   # Job 1: Run tests before building image
   test:
     name: Run Tests
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS, X64]
 
     steps:
       - name: Checkout code
