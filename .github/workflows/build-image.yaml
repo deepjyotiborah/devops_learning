@@ -33,7 +33,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
           
       - name: Install dependencies
         run: |
@@ -98,18 +97,13 @@ jobs:
   # Job 3: Deploy to Kubernetes
   deploy:
     name: Deploy to Kubernetes
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS, X64]  # Use self-hosted runner for Minikube access
     needs: build-and-push
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-      
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'latest'
       
       - name: Deploy to Kubernetes
         run: |
