@@ -85,14 +85,14 @@ jobs:
       - name: Test Docker image
         run: |
           docker run -d -p 8000:8000 --name test-container ${{ secrets.DOCKER_USERNAME }}/${{ env.REGISTRY_IMAGE }}:latest
-          sleep 10
+          sleep 30
           curl -f http://localhost:8000/health || exit 1
           docker stop test-container
 
   # Job 3: Deploy to Kubernetes
   deploy:
     name: Deploy to Kubernetes
-    runs-on: [self-hosted, macOS, X64]  # Use self-hosted runner for Minikube access
+    runs-on: [self-hosted, macOS, ARM64]  # Use self-hosted runner for Minikube access
     needs: build-and-push
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
