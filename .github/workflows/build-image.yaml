@@ -23,7 +23,7 @@ jobs:
   # Job 1: Run tests before building image
   test:
     name: Run Tests
-    runs-on: [self-hosted, macOS, X64]
+    runs-on: [self-hosted, macOS, ARM64]
 
     steps:
       - name: Checkout code
