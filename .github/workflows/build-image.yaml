@@ -89,9 +89,9 @@ jobs:
           curl -f http://localhost:8000/health || exit 1
           docker stop test-container
 
-  # Job 3: Deploy to Kubernetes
+  # Job 3: Deploy to Kubernetes with Helm
   deploy:
-    name: Deploy to Kubernetes
+    name: Deploy to Kubernetes with Helm
     runs-on: [self-hosted, macOS, ARM64]  # Use self-hosted runner for Minikube access
     needs: build-and-push
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -100,35 +100,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
       
-      - name: Deploy to Kubernetes
+      - name: Deploy with Helm
         run: |
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
-      
-      - name: Wait for deployment
-        run: |
-          kubectl rollout status deployment/demoservice-deployment --timeout=5m
+          echo "Deploying demo-service using Helm..."
+          helm upgrade --install demo-service ./charts \
+            --set image.repository=${{ secrets.DOCKER_USERNAME }}/${{ env.REGISTRY_IMAGE }} \
+            --set image.tag=latest \
+            --wait \
+            --timeout 5m \
+            --debug
       
       - name: Verify deployment
         run: |
           echo "Checking deployment status..."
-          kubectl get deployments -l app=demo-service
-          kubectl get pods -l app=demo-service
-          kubectl get svc demo-service
+          kubectl get deployments -l app.kubernetes.io/name=demo-service
+          kubectl get pods -l app.kubernetes.io/name=demo-service
+          kubectl get svc -l app.kubernetes.io/name=demo-service
           
           echo ""
-          echo "Checking pod health..."
-          kubectl wait --for=condition=ready pod -l app=demo-service --timeout=2m
+          echo "Waiting for pods to be ready..."
+          kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=demo-service --timeout=2m
           
           echo ""
-          echo "Deployment successful!"
+          echo "✅ Deployment successful!"
       
       - name: Test health check endpoint
         run: |
           echo "Testing application health endpoint..."
           
           # Get pod name
-          POD_NAME=$(kubectl get pods -l app=demo-service -o jsonpath='{.items[0].metadata.name}')
+          POD_NAME=$(kubectl get pods -l app.kubernetes.io/name=demo-service -o jsonpath='{.items[0].metadata.name}')
           echo "Testing pod: $POD_NAME"
           
           # Port forward in background
@@ -141,43 +142,36 @@ jobs:
           # Test health endpoint
           echo ""
           echo "Calling health endpoint..."
-          HEALTH_RESPONSE=$(curl -s http://localhost:8080/health)
-          echo "Response: $HEALTH_RESPONSE"
-          
-          # Verify response contains "healthy"
-          if echo "$HEALTH_RESPONSE" | grep -q "healthy"; then
-            echo ""
+          if curl -s http://localhost:8080/health | grep -q "healthy"; then
             echo "✅ Health check passed!"
           else
-            echo ""
             echo "❌ Health check failed!"
-            kill $PF_PID
+            kill $PF_PID 2>/dev/null || true
             exit 1
           fi
           
           # Test root endpoint
           echo ""
           echo "Calling root endpoint..."
-          ROOT_RESPONSE=$(curl -s http://localhost:8080/)
-          echo "Response: $ROOT_RESPONSE"
+          curl -s http://localhost:8080/ || true
           
           # Clean up port forward
-          kill $PF_PID
+          kill $PF_PID 2>/dev/null || true
           
           echo ""
           echo "✅ All endpoint tests passed!"
       
-      - name: Get deployment info
+      - name: Get Helm release info
         if: always()
         run: |
-          echo "=== Deployment Details ==="
-          kubectl describe deployment demoservice-deployment
+          echo "=== Helm Release Status ==="
+          helm status demo-service
+          echo ""
+          echo "=== Helm Release Values ==="
+          helm get values demo-service
           echo ""
           echo "=== Pod Details ==="
-          kubectl get pods -l app=demo-service -o wide
-          echo ""
-          echo "=== Service Details ==="
-          kubectl describe svc demo-service
+          kubectl get pods -l app.kubernetes.io/name=demo-service -o wide
           echo ""
           echo "=== Recent Pod Logs ==="
-          kubectl logs -l app=demo-service --tail=20
+          kubectl logs -l app.kubernetes.io/name=demo-service --tail=20
