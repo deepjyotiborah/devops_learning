@@ -94,7 +94,7 @@ jobs:
     name: Deploy to Kubernetes with Helm
     runs-on: [self-hosted, macOS, ARM64]  # Use self-hosted runner for Minikube access
     needs: build-and-push
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -150,9 +150,9 @@ jobs:
           echo ""
           echo "Calling health endpoint..."
           if curl -s http://localhost:8080/health | grep -q "healthy"; then
-            echo "✅ Health check passed!"
+            echo "Health check passed!"
           else
-            echo "❌ Health check failed!"
+            echo "Health check failed!"
             kill $PF_PID 2>/dev/null || true
             exit 1
           fi
@@ -166,7 +166,7 @@ jobs:
           kill $PF_PID 2>/dev/null || true
           
           echo ""
-          echo "✅ All endpoint tests passed!"
+          echo "Tests passed!"
       
       - name: Get Helm release info
         if: always()
@@ -176,9 +176,3 @@ jobs:
           echo ""
           echo "=== Helm Release Values ==="
           helm get values demo-service
-          echo ""
-          echo "=== Pod Details ==="
-          kubectl get pods -l app=demo-service -o wide
-          echo ""
-          echo "=== Recent Pod Logs ==="
-          kubectl logs -l app=demo-service --tail=20
