@@ -121,13 +121,13 @@ jobs:
       - name: Verify deployment
         run: |
           echo "Checking deployment status..."
-          kubectl get deployments -l app.kubernetes.io/name=demo-service
-          kubectl get pods -l app.kubernetes.io/name=demo-service
-          kubectl get svc -l app.kubernetes.io/name=demo-service
+          kubectl get deployments
+          kubectl get pods -l app=demo-service
+          kubectl get svc
           
           echo ""
           echo "Waiting for pods to be ready..."
-          kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=demo-service --timeout=2m
+          kubectl wait --for=condition=ready pod -l app=demo-service --timeout=2m
           
           echo ""
           echo "✅ Deployment successful!"
@@ -137,7 +137,7 @@ jobs:
           echo "Testing application health endpoint..."
           
           # Get pod name
-          POD_NAME=$(kubectl get pods -l app.kubernetes.io/name=demo-service -o jsonpath='{.items[0].metadata.name}')
+          POD_NAME=$(kubectl get pods -l app=demo-service -o jsonpath='{.items[0].metadata.name}')
           echo "Testing pod: $POD_NAME"
           
           # Port forward in background
@@ -179,7 +179,7 @@ jobs:
           helm get values demo-service
           echo ""
           echo "=== Pod Details ==="
-          kubectl get pods -l app.kubernetes.io/name=demo-service -o wide
+          kubectl get pods -l app=demo-service -o wide
           echo ""
           echo "=== Recent Pod Logs ==="
-          kubectl logs -l app.kubernetes.io/name=demo-service --tail=20
+          kubectl logs -l app=demo-service --tail=20
