@@ -106,7 +106,7 @@ jobs:
           kubectl delete deployment demoservice-deployment --ignore-not-found=true
           kubectl delete service demo-service --ignore-not-found=true
           echo "✓ Cleanup complete"
-      
+
       - name: Deploy with Helm
         run: |
           echo "Deploying demo-service using Helm..."
