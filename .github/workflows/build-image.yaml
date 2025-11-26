@@ -100,6 +100,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
       
+      - name: Clean up old kubectl resources
+        run: |
+          echo "Cleaning up old non-Helm managed resources..."
+          kubectl delete deployment demoservice-deployment --ignore-not-found=true
+          kubectl delete service demo-service --ignore-not-found=true
+          echo "✓ Cleanup complete"
+      
       - name: Deploy with Helm
         run: |
           echo "Deploying demo-service using Helm..."
@@ -109,7 +116,8 @@ jobs:
             --wait \
             --timeout 5m \
             --debug
-      
+          sleep 10
+
       - name: Verify deployment
         run: |
           echo "Checking deployment status..."
