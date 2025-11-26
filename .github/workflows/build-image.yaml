@@ -93,8 +93,6 @@ jobs:
   deploy:
     name: Deploy to Kubernetes with Helm
     runs-on: [self-hosted, macOS, ARM64]  # Use self-hosted runner for Minikube access
-    needs: build-and-push
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
       - name: Checkout code
@@ -105,7 +103,7 @@ jobs:
           echo "Cleaning up old non-Helm managed resources..."
           kubectl delete deployment demoservice-deployment --ignore-not-found=true
           kubectl delete service demo-service --ignore-not-found=true
-          echo "✓ Cleanup complete"
+          echo "Cleanup complete"
 
       - name: Deploy with Helm
         run: |
@@ -121,7 +119,7 @@ jobs:
       - name: Verify deployment
         run: |
           echo "Checking deployment status..."
-          kubectl get deployments
+          kubectl get deployments -l app=demo-service
           kubectl get pods -l app=demo-service
           kubectl get svc
           
@@ -130,7 +128,7 @@ jobs:
           kubectl wait --for=condition=ready pod -l app=demo-service --timeout=2m
           
           echo ""
-          echo "✅ Deployment successful!"
+          echo "Deployment successful!"
       
       - name: Test health check endpoint
         run: |
